@@ -1,8 +1,13 @@
 import WebSocket, { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
 import url from "url";
+import dotenv from "dotenv";
 import wsController from "./websocket/wsController.js";
 import models from "./models/index.js";
+
+dotenv.config({
+    path: "./config.env",
+  });
 
 const port = process.env.PORT || 4000;
 

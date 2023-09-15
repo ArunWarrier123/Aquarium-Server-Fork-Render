@@ -25,6 +25,22 @@ const register = catchAsyncError(async (req, res, next) => {
     // confirmPassword,
   } = req.body;
 
+
+  //check for first phase where you check if user already exists thats it
+  let exists = await models.User.findOne({ phone: phone })
+
+  if (!state) {
+    console.log(exists)
+    if (exists) {
+      return next(new ErrorHandler(ResponseMessages.ACCOUNT_ALREADY_EXISTS, 400));
+    }
+    else{
+      res.json({ "newuser" : true })
+      return;
+    }
+
+  }
+
   if (!fullname) {
     return next(new ErrorHandler(ResponseMessages.FIRST_NAME_REQUIRED, 400));
   }
@@ -91,13 +107,13 @@ const register = catchAsyncError(async (req, res, next) => {
   //   return next(new ErrorHandler(ResponseMessages.PASSWORDS_DO_NOT_MATCH, 400));
   // }
 
-  let isUserExists = await models.User.findOne({ phone });
+  // let isUserExists = await models.User.findOne({ phone });
 
-  if (isUserExists) {
-    return next(new ErrorHandler(ResponseMessages.ACCOUNT_ALREADY_EXISTS, 400));
-  }
+  // if (isUserExists) {
+  //   return next(new ErrorHandler(ResponseMessages.ACCOUNT_ALREADY_EXISTS, 400));
+  // }
 
-  const ip = utility.getIp(req);
+  // const ip = utility.getIp(req);
 
   const user = await models.User.create({
     // email,
@@ -111,10 +127,6 @@ const register = catchAsyncError(async (req, res, next) => {
     bio,
     profileimage,
     interestedarea
-
-    // role: ,
-    // uname,
-    // accountCreatedIp: ip,
   });
 
   if (!user) {
@@ -123,7 +135,7 @@ const register = catchAsyncError(async (req, res, next) => {
   }
 
   // Generating OTP
-  const { otp, expiresAt } = await utility.generateOTP();
+  // const { otp, expiresAt } = await utility.generateOTP();
 
   // await models.OTP.create({
   //   otp,
@@ -132,40 +144,40 @@ const register = catchAsyncError(async (req, res, next) => {
   //   phone
   // });
 
-  const htmlMessageWelcome = `<p>Hi ${user.fname},</p>
-  <p>
-    Thank you so much for creating an account with us. We're glad you're here!
-  </p>
-  <p>
-    To learn more about our product and services, visit our website
-    <a href="https://searchin.co.in" target="_blank">here</a>.
-  </p>
-  <p>
-    For any queries, feel free to contact us at
-    <a href="mailto:searchin789@gmail.com" target="_blank">searchin789@gmail.com</a>.
-  </p>
-  <p>This is a auto-generated email. Please do not reply to this email.</p>
-  <p>
-    Regards, <br />
-    Search-In Team
-  </p>`;
+  // const htmlMessageWelcome = `<p>Hi ${user.fname},</p>
+  // <p>
+  //   Thank you so much for creating an account with us. We're glad you're here!
+  // </p>
+  // <p>
+  //   To learn more about our product and services, visit our website
+  //   <a href="https://searchin.co.in" target="_blank">here</a>.
+  // </p>
+  // <p>
+  //   For any queries, feel free to contact us at
+  //   <a href="mailto:searchin789@gmail.com" target="_blank">searchin789@gmail.com</a>.
+  // </p>
+  // <p>This is a auto-generated email. Please do not reply to this email.</p>
+  // <p>
+  //   Regards, <br />
+  //   Search-In Team
+  // </p>`;
 
-  const htmlMessageEmailOtp = `<p>Your OTP is:</p>
-    <h2>${otp}</h2>
-    <p>This OTP is valid for 15 minutes & usable once.</p>
-    <p>If you have not requested this email then, please ignore it.</p>
-    <p>
-    For any queries, feel free to contact us at
-    <a href="mailto:searchin789@gmail.com" target="_blank">searchin789@gmail.com</a>.
-    </p>
-    <p> If you want know more about Search-In, please visit our website 
-        <a href="https://searchin.co.in" target="_blank">here</a>.
-    </p>
-    <p>This is a auto-generated email. Please do not reply to this email.</p>
-    <p>
-    Regards, <br />
-    Search-In Team
-    </p>`;
+  // const htmlMessageEmailOtp = `<p>Your OTP is:</p>
+  //   <h2>${otp}</h2>
+  //   <p>This OTP is valid for 15 minutes & usable once.</p>
+  //   <p>If you have not requested this email then, please ignore it.</p>
+  //   <p>
+  //   For any queries, feel free to contact us at
+  //   <a href="mailto:searchin789@gmail.com" target="_blank">searchin789@gmail.com</a>.
+  //   </p>
+  //   <p> If you want know more about Search-In, please visit our website 
+  //       <a href="https://searchin.co.in" target="_blank">here</a>.
+  //   </p>
+  //   <p>This is a auto-generated email. Please do not reply to this email.</p>
+  //   <p>
+  //   Regards, <br />
+  //   Search-In Team
+  //   </p>`;
 
   // try {
   //   await utility.sendEmail({
@@ -188,12 +200,15 @@ const register = catchAsyncError(async (req, res, next) => {
   //   console.log(err.message);
   // }
 
+  const tokenObj = await utility.generateAuthToken(user , "user");
+
+
   res.status(201).json({
     success: true,
     message: ResponseMessages.SIGNUP_SUCCESS,
     data: {
       user: user._id,
-      otp: otp,
+      token: tokenObj.token,
     }
   });
 });

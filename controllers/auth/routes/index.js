@@ -39,7 +39,7 @@ authRouter.route("/validate-user")
 /// @route  POST /api/v1/logout
 /// @desc   Logout a user
 /// @access Private
-authRouter.route("/logout")
+authRouter.route("/logout/:id")
     .get(isAuthenticatedUser, authController.logout);
 
 /// @route  POST /api/v1/forgot-password
@@ -52,7 +52,7 @@ authRouter.route("/forgot-password")
 /// @desc   Reset password
 /// @access Public
 authRouter.route("/reset-password")
-    .post(authController.resetPassword);
+    .put(authController.resetPassword);
 
 /// @route  POST /api/v1/validate-token
 /// @desc   Validate token
