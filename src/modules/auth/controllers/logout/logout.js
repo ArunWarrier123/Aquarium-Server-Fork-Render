@@ -6,7 +6,7 @@ import models from "../../../../models/index.js";
 /// @route  GET api/v1/logout
 
 const logout = catchAsyncError(async (req, res, next) => {
-  const user = await models.User.findById(req.user._id);
+  const user = await models.User.findById(req.params.id);
 
   if (!user) {
     return next(new ErrorHandler(ResponseMessages.USER_NOT_FOUND, 404));

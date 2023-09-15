@@ -47,7 +47,7 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   const user = await models.User.findOne({ phone: phone });
 
   if (!user) {
-    return next(new ErrorHandler(ResponseMessages.INCORRECT_OTP, 400));
+    return next(new ErrorHandler(ResponseMessages.USER_NOT_FOUND, 400));
   }
 
   // if (user.accountStatus !== "active" && user.accountStatus !== "deactivated") {
@@ -59,16 +59,17 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   // }
 
   user.password = newPassword;
-  user.passwordChangedAt = Date.now();
+  // user.passwordChangedAt = Date.now();
   await user.save();
 
   // otpObj.remove();
 
-  await utility.generateAuthToken(user);
+  const tokenObj = await utility.generateAuthToken(user);
 
   res.status(200).json({
     success: true,
     message: ResponseMessages.PASSWORD_RESET_SUCCESS,
+    "token": tokenObj.token
   });
 });
 

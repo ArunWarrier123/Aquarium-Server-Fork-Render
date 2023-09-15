@@ -27,76 +27,61 @@ const login = catchAsyncError(async (req, res, next) => {
     }
   }
 
-    // if (email && validators.validateEmail(email)) {
-    // user = await models.User.findOne({ email: email }).select("+password");
-    // if (!user) {
-    // return next(new ErrorHandler(ResponseMessages.INCORRECT_EMAIL_OR_USERNAME, 400));
-    // }
-    // }
-    // else {
-    //   // user = await models.User.findOne({ uname: emailUname }).select("+password");
+  // if (email && validators.validateEmail(email)) {
+  // user = await models.User.findOne({ email: email }).select("+password");
+  // if (!user) {
+  // return next(new ErrorHandler(ResponseMessages.INCORRECT_EMAIL_OR_USERNAME, 400));
+  // }
+  // }
+  // else {
+  //   // user = await models.User.findOne({ uname: emailUname }).select("+password");
 
-    //   // if (!user) {
-    //     return next(new ErrorHandler(ResponseMessages.INCORRECT_EMAIL_OR_USERNAME, 400));
-    //   // }
-    // }
+  //   // if (!user) {
+  //     return next(new ErrorHandler(ResponseMessages.INCORRECT_EMAIL_OR_USERNAME, 400));
+  //   // }
+  // }
 
-    const isMatch = await user.matchPassword(password);
+  const isMatch = await user.matchPassword(password);
 
-    if (!isMatch) {
-      return next(new ErrorHandler(ResponseMessages.INCORRECT_PASSWORD, 400));
-    }
+  if (!isMatch) {
+    return next(new ErrorHandler(ResponseMessages.INCORRECT_PASSWORD, 400));
+  }
 
-    // this if was used in mental wellness there was a boolean in their api which is not in aqua so commented
-    // if (!user.isValid) {
-    //   return res.status(401).json({
-    //     success: false,
-    //     accountStatus: "unverified",
-    //     message: ResponseMessages.INVALID_ACCOUNT_VALIDATION,
-    //   });
-    // }
+  const authToken = await models.AuthToken.findOne({ user: user._id });
 
-    // if (user.accountStatus !== "active") {
-    //   return res.status(401).json({
-    //     success: false,
-    //     accountStatus: user.accountStatus,
-    //     message: ResponseMessages.ACCOUNT_NOT_ACTIVE,
-    //   });
-    // }
+  if (!authToken) {
+    // console.log("no auth token")
+    const tokenObj = await utility.generateAuthToken(user, "user");
 
-    const authToken = await models.AuthToken.findOne({ user: user._id });
-
-    if (!authToken) {
-      // console.log("no auth token")
-      const tokenObj = await utility.generateAuthToken(user);
-
-      return res.status(200).json({
-        success: true,
-        message: ResponseMessages.LOGIN_SUCCESS,
-        // accountStatus: user.accountStatus,
-        token: tokenObj.token,
-        expiresAt: tokenObj.expiresAt,
-      });
-    }
-
-    let token = authToken.token;
-    let expiresAt = authToken.expiresAt;
-
-    if (expiresAt < new Date().getTime() / 1000) {
-      await authToken.remove();
-      const tokenObj = await utility.generateAuthToken(user);
-
-      token = tokenObj.token;
-      expiresAt = tokenObj.expiresAt;
-    }
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: ResponseMessages.LOGIN_SUCCESS,
       // accountStatus: user.accountStatus,
-      token: token,
-      expiresAt: expiresAt,
+      token: tokenObj.token,
+      user: user,
+      // expiresAt: tokenObj.expiresAt,
     });
+  }
+
+  let token = authToken.token;
+  let expiresAt = authToken.expiresAt;
+
+  // if (expiresAt < new Date().getTime() / 1000) {
+  //   await authToken.remove();
+  //   const tokenObj = await utility.generateAuthToken(user);
+
+  //   token = tokenObj.token;
+  //   expiresAt = tokenObj.expiresAt;
+  // }
+
+  res.status(200).json({
+    success: true,
+    message: ResponseMessages.LOGIN_SUCCESS,
+    // accountStatus: user.accountStatus,
+    token: token,
+    user: user,
+    // expiresAt: expiresAt,
   });
+});
 
 export default login;
