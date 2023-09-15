@@ -33,17 +33,17 @@ export const runApp = () => {
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, "public")));
 
-  // Scheduled a task for OTPs
-  cron.schedule("59 23 * * *", () => {
-    console.log("[cron]: task running every day at 11:59 PM");
-    utility.deleteExpiredOTPs();
-  });
+  // // Scheduled a task for OTPs
+  // cron.schedule("59 23 * * *", () => {
+  //   console.log("[cron]: task running every day at 11:59 PM");
+  //   utility.deleteExpiredOTPs();
+  // });
 
-  // Scheduled a task for Stories
-  cron.schedule("*/1 * * * *", () => {
-    // console.log("[cron]: task running every minute");
-    utility.deleteExpiredStories();
-  });
+  // // Scheduled a task for Stories
+  // cron.schedule("*/1 * * * *", () => {
+  //   // console.log("[cron]: task running every minute");
+  //   utility.deleteExpiredStories();
+  // });
   
   return app;
 };
