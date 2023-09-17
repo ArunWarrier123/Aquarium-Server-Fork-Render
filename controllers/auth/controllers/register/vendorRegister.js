@@ -44,10 +44,33 @@ const vendorRegister = catchAsyncError(async (req, res, next) => {
         if (user) {
             //user is logging in so create the auth token, place it in db and pass it in response
 
-            const tokenObj = await utility.generateAuthToken(user , "vendor");
+            const tokenObj = await utility.generateAuthToken(user, "vendor");
+            const ratings = await models.Rating.find();
+
+            let resdata = []
+            let cnt = 0;
+            let avg = 0;
+            ratings.forEach((rating) => {
+                if (rating.vendorId.equals(user._id)) {
+                    //this means the rating was given for current store
+                    cnt++;
+                    avg += rating.rating
+                }
+            })
+
+            //u have the total no. of ratings for curr store and the sum of all so u get avg now
+            if (cnt !== 0) avg /= cnt;
+
+            resdata.push({
+                vendor: user,
+                average: avg,
+                total: cnt
+            })
+
 
             return res.json({
-                "newuser": false, "user": user, "token": tokenObj.token,
+                "newuser": false, "user": resdata, "token": tokenObj.token,
+
             }, 200);
         }
         else {
@@ -157,15 +180,17 @@ const vendorRegister = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler(ResponseMessages.ACCOUNT_NOT_CREATED, 500));
     }
 
-    
-    const tokenObj = await utility.generateAuthToken(vendornew , "vendor");
+
+    const tokenObj = await utility.generateAuthToken(vendornew, "vendor");
 
     res.status(201).json({
         success: true,
         message: ResponseMessages.SIGNUP_SUCCESS,
         data: {
             vendornew: vendornew._id,
-            "token": tokenObj.token
+            "token": tokenObj.token,
+            average: 0,
+            total: 0
             // otp: otp,
         }
     });
