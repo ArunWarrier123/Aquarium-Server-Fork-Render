@@ -6,7 +6,7 @@ import models from "../../../models/index.js";
 /// @route  GET /api/v1/
 
 const getProductBySubId = catchAsyncError(async (req, res, next) => {
-    const { subcategoryId, vendorId } = req.body
+    const { subcategoryId, vendorId } = req.query
 
     const productsBySubCategory = await models.Product.find({ subcategoryId: subcategoryId })
 

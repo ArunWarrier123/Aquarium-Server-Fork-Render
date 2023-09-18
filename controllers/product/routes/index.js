@@ -15,6 +15,9 @@ productRouter.route("/get-product-bysubid")
 productRouter.route("/get-product-byprodid/:productId")
     .get( isAuthenticatedVendor , productController.getProductbyProdId );
 
+productRouter.route("/get-all-products")
+    .get( isAuthenticatedVendor , productController.getAllProducts );
+
 
 
 export default productRouter;
