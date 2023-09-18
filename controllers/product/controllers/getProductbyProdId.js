@@ -6,11 +6,32 @@ import models from "../../../models/index.js";
 /// @route  GET /api/v1/
 
 const getProductbyProdId = catchAsyncError(async (req, res, next) => {
-    const { productId } = req.params
+    const { productId, vendorId } = req.params
 
     const productdata = await models.Product.find({ _id: productId })
-    
-    res.json(productdata)
+
+    const vendor_product = await models.VendorProduct.findOne({ vendorId: vendorId })
+    let status;
+    if (!vendor_product) {
+        status = false;
+    }
+    else {
+        if (vendor_product.productId.equals(productId)) {
+            if (vendor_product.status === "In-Stock") {
+                status = true;
+            }
+            else status = false;
+        }
+
+    }
+
+
+    res.json({
+        product: productdata,
+        status: status
+    })
+
+
 
 
 });

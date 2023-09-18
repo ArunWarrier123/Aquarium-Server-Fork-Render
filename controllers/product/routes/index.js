@@ -12,10 +12,10 @@ const isAuthenticatedVendor = authMiddleware.isAuthenticatedVendor;
 productRouter.route("/get-product-bysubid")
     .get( isAuthenticatedVendor , productController.getProductBySubId );
 
-productRouter.route("/get-product-byprodid/:productId")
+productRouter.route("/get-product-byprodid/:productId/:vendorId")
     .get( isAuthenticatedVendor , productController.getProductbyProdId );
 
-productRouter.route("/get-all-products")
+productRouter.route("/get-all-products/:vendorId")
     .get( isAuthenticatedVendor , productController.getAllProducts );
 
 
